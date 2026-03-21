@@ -217,7 +217,7 @@
   <div class="birthday-banner">Happy Birthday</div>
   <div class="friend-name">Lauryn!</div>
   <div class="horse-deco">🐴</div>
-  <div class="subtitle">I made you a little horse game instead of a card.<br>Jump the fences. Don't fall over. 🌟</div>
+  <div class="subtitle">I made you a little horse game instead of a card.<br>Jump the fences. Make your ancestors proud. 🌟</div>
   <button class="start-btn" id="start-btn">Let's Ride!</button>
 </div>
 
@@ -277,11 +277,10 @@ if (CANDY_SRC) { candyImage = new Image(); candyImage.src = CANDY_SRC; }
 const CANDY_SPAWN_RATE = 0.45;
 
 // ── OBSTACLE TYPES ────────────────────────────────────────
-//  Add as many entries as you like.
 //  'type'   : 'fence' or 'cake' — which built-in to use as fallback.
 //  'weight' : relative probability. 3 is 3× more likely than 1.
 //  'src'    : path/URL to an image that REPLACES the built-in drawing.
-//             Leave null to use the built-in. Recommended: transparent PNG.
+//             Leave null to use the built-in. Recommend: transparent PNG.
 //  'w','h'  : display size in px when using a custom src image.
 //             Leave null to use auto-sized built-in dimensions.
 //  'label'  : just a comment for you, ignored by the game.
@@ -301,16 +300,17 @@ OBSTACLE_TYPES.forEach(cfg => {
 // ── DEATH MESSAGES ────────────────────────────────────────
 //  One is picked at random each time the horse crashes.
 const DEATH_MESSAGES = [
-  { emoji: '🐴😵', title: 'Whoops!',       msg: 'Your horse got a little too enthusiastic.'   },
+  { emoji: '🐴😵', title: 'Whoops!',       msg: 'horse deded?'   },
   { emoji: '🤷‍♀️',   title: 'What do?',         msg: 'Walked right into that one.'                  },
   { emoji: '😬',   title: 'So Close!',     msg: 'You were literally doing so well.'             },
   { emoji: '🤦',   title: 'Really?',       msg: 'The horse has one job.'                        },
   { emoji: '☕',   title: 'Take a Break',  msg: 'Maybe get a snack first and come back.'        },
+  { emoji: '🌽',   title: 'Corn',  msg: 'C O R N.'        },
+  
 ];
 
 // ── WIN MESSAGES ──────────────────────────────────────────
 //  Shown instead of a death message when score >= WIN_SCORE.
-//  Add as many as you like for variety.
 const WIN_MESSAGES = [
   { emoji: '🏆🐴', title: 'YOU WIN!!',       msg: 'Wow. An actual champion. Respect.'            },
   { emoji: '🎉🎊', title: 'LEGENDARY!!',      msg: 'Your horse deserves a carrot.'                },
@@ -393,7 +393,6 @@ function spawnJumpPoof() {
   }
 }
 
-// ── OBSTACLES ──
 // ── OBSTACLES ──
 function pickObstacleType() {
   // Weighted random pick from OBSTACLE_TYPES
