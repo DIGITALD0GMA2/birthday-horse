@@ -483,14 +483,13 @@ const WIN_MESSAGES = [
 //  Reach this score to trigger the special win message.
 const WIN_SCORE = 300;
 
-//  To RESET the leaderboard: just edit leaderboard.json on gist.github.com
-//  and replace the content with {"scores":[]}.
-//
-//  BAD SECURITY ALERT: this token shouldn't really be visible, but I don't care for now.
-const GIST_ID            = '09d1a5297dd15607866f47d6d06697b0';          // e.g. 'a1b2c3d4e5f6...'
-const GITHUB_TOKEN       = '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';          // e.g. 'ghp_xxxxxxxxxxxx'
-const LEADERBOARD_FILE   = 'leaderboard.json';
-const LEADERBOARD_MAX    = 10;            // max entries shown
+// ── LEADERBOARD (JSONBin.io) ───────────────────────────────
+
+//  To RESET the leaderboard: go to jsonbin.io, open bin, and
+//  replace the content with {"scores":[]} and hit Save.
+const JSONBIN_BIN_ID     = '69bf7da7c3097a1dd5499bea';   // e.g. '6630f1e0e41b4d34f43c...'
+const JSONBIN_MASTER_KEY = '$2a$10$CTgAKpefzv9SXRF3gQIOHeIyzOjve1ZMcQiTz1YXnU0ACtv8ta2yG';   // e.g. '$2a$10$...'
+const LEADERBOARD_MAX    = 10;     // max entries shown
 
 // ── PALETTE ──
 const C = {
@@ -1076,29 +1075,23 @@ function startGame() {
 
 // ── LEADERBOARD ──────────────────────────────────────────
 
-// Fetches the current scores array from the Gist.
-// Returns [] if not configured or on any error (fail-safe).
 async function fetchLeaderboard() {
-  if (!GIST_ID) return [];
+  if (!JSONBIN_BIN_ID) return [];
   try {
-    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-      headers: { Accept: 'application/vnd.github+json' }
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_MASTER_KEY }
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const gist = await res.json();
-    const raw  = gist.files?.[LEADERBOARD_FILE]?.content;
-    if (!raw) return [];
-    return JSON.parse(raw).scores ?? [];
+    const data = await res.json();
+    return data.record?.scores ?? [];
   } catch (e) {
     console.warn('Leaderboard fetch failed:', e);
     return [];
   }
 }
 
-// Writes a new score entry back to the Gist.
-// Keeps only the top LEADERBOARD_MAX entries by score.
 async function submitScore(name, scoreVal) {
-  if (!GIST_ID || !GITHUB_TOKEN) {
+  if (!JSONBIN_BIN_ID || !JSONBIN_MASTER_KEY) {
     submitFeedback.textContent = '⚠️ Leaderboard not configured yet.';
     return false;
   }
@@ -1107,23 +1100,19 @@ async function submitScore(name, scoreVal) {
     scores.push({
       name: name.toUpperCase().slice(0, 6),
       score: scoreVal,
-      date: new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short' })
+      date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
     });
     // Keep top LEADERBOARD_MAX, sorted descending
     scores.sort((a, b) => b.score - a.score);
     scores.splice(LEADERBOARD_MAX);
 
-    const payload = {
-      files: { [LEADERBOARD_FILE]: { content: JSON.stringify({ scores }, null, 2) } }
-    };
-    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-      method:  'PATCH',
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+      method:  'PUT',
       headers: {
-        Accept: 'application/vnd.github+json',
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
         'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_MASTER_KEY,
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ scores }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return true;
@@ -1139,7 +1128,7 @@ async function showLeaderboard() {
   lbStatus.textContent = 'Loading…';
   lbBody.innerHTML = '';
 
-  if (!GIST_ID) {
+  if (!JSONBIN_BIN_ID) {
     lbStatus.textContent = '⚠️ Leaderboard not set up yet. See CUSTOM ASSETS in the code.';
     return;
   }
@@ -1153,7 +1142,7 @@ async function showLeaderboard() {
   }
 
   lbBody.innerHTML = scores.map((entry, i) => {
-    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `<span class="lb-rank">${i+1}</span>`;
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `<span class="lb-rank">${i + 1}</span>`;
     return `<tr>
       <td>${medal}</td>
       <td>${entry.name}</td>
