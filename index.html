@@ -445,11 +445,11 @@ const CANDY_SPAWN_RATE = 0.45;
 //             Leave null to use the built-in. Recommend: transparent PNG.
 //  'w','h'  : display size in px when using a custom src image.
 //             Leave null to use auto-sized built-in dimensions.
-//  'label'  : just a comment for you, ignored by the game.
+//  'label'  : just a comment, ignored by the game.
 const OBSTACLE_TYPES = [
   { type: 'fence',  weight: 3,  src: null, w: null, h: null, label: 'Fence'      },
-  { type: 'shane',   weight: 2,  src: 'assets/shane-no.png', w: null, h: null, label: 'Shane'       },
-  { type: 'adobe',   weight: 2,  src: 'assets/adobe-logo.png', w: null, h: null, label: 'adobe'       },
+  { type: 'shane',   weight: 2,  src: 'assets/shane-no.png', w: 150, h: 148, label: 'Shane'       },
+  //{ type: 'adobe',   weight: 2,  src: 'assets/adobe-logo.png', w: null, h: null, label: 'adobe'       },
   // { type: 'custom', weight: 1,  src: 'boss.png', w: 52, h: 64, label: 'The Boss' },
 ];
 
