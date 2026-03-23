@@ -449,6 +449,7 @@ const CANDY_SPAWN_RATE = 0.45;
 const OBSTACLE_TYPES = [
   { type: 'fence',  weight: 3,  src: null, w: null, h: null, label: 'Fence'      },
   { type: 'shane',   weight: 1,  src: 'assets/shane-no.png', w: 60, h: 59, label: 'Shane'       },
+  { type: 'erik',   weight: 0.5,  src: 'assets/erik.png', w: 90, h: 90, label: 'Erik'       },
   //{ type: 'adobe',   weight: 2,  src: 'assets/adobe-logo.png', w: null, h: null, label: 'adobe'       },
   // { type: 'custom', weight: 1,  src: 'boss.png', w: 52, h: 64, label: 'The Boss' },
 ];
@@ -474,7 +475,7 @@ const DEATH_MESSAGES = [
 // ── WIN MESSAGES ──────────────────────────────────────────
 //  Shown instead of a death message when score >= WIN_SCORE.
 const WIN_MESSAGES = [
-  { emoji: '🏆🐴', title: 'YOU WIN!!',       msg: 'Wow. An actual champion. Respect.'            },
+  { emoji: '🏆🐴', title: 'YOU WIN!!',       msg: 'You reached the super secret Score Threshhold.'            },
   { emoji: '🎉🎊', title: 'LEGENDARY!!',      msg: 'Your horse deserves a carrot.'                },
   { emoji: '👑',   title: 'QUEEN OF HORSES',  msg: 'No notes. Perfect run. Flawless.'             },
 ];
