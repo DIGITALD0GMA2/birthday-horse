@@ -31,7 +31,7 @@
     overflow: hidden;
   }
 
-  /* ── SCREENS ── */
+  /* -- SCREENS -- */
   .screen {
     position: absolute;
     inset: 0;
@@ -45,7 +45,7 @@
   }
   .screen.hidden { opacity:0; pointer-events:none; }
 
-  /* ── START SCREEN ── */
+  /* -- START SCREEN -- */
   #start-screen {
     background: linear-gradient(170deg, #fde8d0 0%, #fbc99e 55%, #f5a86e 100%);
   }
@@ -111,7 +111,7 @@
     100% { transform: translateX(-10px) rotate(0deg); }
   }
 
-  /* ── GAME SCREEN ── */
+  /* -- GAME SCREEN -- */
   #game-screen {
     background: transparent;
     padding: 0;
@@ -124,7 +124,7 @@
     max-height: 100dvh;
   }
 
-  /* ── SCORE HUD ── */
+  /* -- SCORE HUD -- */
   #hud {
     position: fixed;
     top: 16px;
@@ -139,7 +139,7 @@
     display: none;
   }
 
-  /* ── DEATH SCREEN ── */
+  /* -- DEATH SCREEN -- */
   #dead-screen {
     background: linear-gradient(160deg, #3b2a1a 0%, #5c3d22 100%);
   }
@@ -208,7 +208,7 @@
     100% { transform: translateY(110vh) rotate(720deg); opacity:0; }
   }
   
-  /* ── WIN NAME INPUT ── */
+  /* -- WIN NAME INPUT -- */
   #win-entry { display:none; margin-bottom: 18px; }
   #win-entry.visible { display:block; }
   .win-entry-label {
@@ -253,7 +253,7 @@
     font-size: .9rem; color: #b8f5c0; margin-top: 8px; min-height: 1.2em;
   }
 
-  /* ── LEADERBOARD SCREEN ── */
+  /* -- LEADERBOARD SCREEN -- */
   #leaderboard-screen {
     background: linear-gradient(160deg, #1a1a2e 0%, #2a2a4a 100%);
     padding: 28px 20px;
@@ -338,7 +338,7 @@
 </head>
 <body>
 
-<!-- ══ START SCREEN ══ -->
+<!-- == START SCREEN == -->
 <div id="start-screen" class="screen">
   <div class="confetti-strip">🎀🎂🎈🎁🎊🎉🐴</div>
   <div class="birthday-banner">Happy Birthday</div>
@@ -349,13 +349,13 @@
   <button class="lb-start-btn" id="lb-start-btn">🏆 Leaderboard</button>
 </div>
 
-<!-- ══ GAME SCREEN ══ -->
+<!-- == GAME SCREEN == -->
 <div id="game-screen" class="screen hidden">
   <canvas id="game-canvas"></canvas>
 </div>
 <div id="hud">🏅 <span id="score-text">0</span></div>
 
-<!-- ══ DEATH SCREEN ══ -->
+<!-- == DEATH SCREEN == -->
 <div id="dead-screen" class="screen hidden">
   <div class="dead-emoji" id="dead-emoji">🐴💨</div>
   <div class="dead-title" id="dead-title">Whoops!</div>
@@ -378,7 +378,7 @@
   <button class="home-btn" id="home-btn">← Go back home</button>
 </div>
 
-<!-- ══ LEADERBOARD SCREEN ══ -->
+<!-- == LEADERBOARD SCREEN == -->
 <div id="leaderboard-screen" class="screen hidden">
   <div class="lb-title">🏆 Hall of Fame</div>
   <div class="lb-subtitle">Scores that slap.</div>
@@ -396,9 +396,9 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════════════
-//  BIRTHDAY HORSE GAME
-// ═══════════════════════════════════════════════
+// ===============================================
+//  BIRTHDAY HORSE GAME                          =
+// ===============================================
 
 const startScreen = document.getElementById('start-screen');
 const gameScreen  = document.getElementById('game-screen');
@@ -416,18 +416,18 @@ const submitFeedback = document.getElementById('submit-feedback');
 const lbBody      = document.getElementById('lb-body');
 const lbStatus    = document.getElementById('lb-status');
 
-// ═══════════════════════════════════════════════════════════
+// ===========================================================
 //  CUSTOM ASSETS
-// ═══════════════════════════════════════════════════════════
+// ===========================================================
 
-// ── BACKGROUND IMAGE ──────────────────────────────────────
+// -- BACKGROUND IMAGE --
 //  Set to a URL or relative path (e.g. 'bg.jpg').
 //  Leave null to use the default painted sky.
 const BACKGROUND_SRC = 'assets/bg.png'; // e.g. 'background.jpg'
 let   bgImage = null;
 if (BACKGROUND_SRC) { bgImage = new Image(); bgImage.src = BACKGROUND_SRC; }
 
-// ── CANDY IMAGE ───────────────────────────────────────────
+// -- CANDY IMAGE --
 //  Set to a URL or relative path (e.g. 'candy.png').
 //  Leave null to use the built-in drawn star.
 //  Recommended: ~60×60 px transparent PNG.
@@ -438,7 +438,7 @@ if (CANDY_SRC) { candyImage = new Image(); candyImage.src = CANDY_SRC; }
 //  CANDY SPAWN RATE  (0 = never, 1 = every gap, 0.45 = 45% chance)
 const CANDY_SPAWN_RATE = 0.45;
 
-// ── OBSTACLE TYPES ────────────────────────────────────────
+// -- OBSTACLE TYPES --
 //  'type'   : 'fence' or 'cake' — which built-in to use as fallback.
 //  'weight' : relative probability. 3 is 3× more likely than 1.
 //  'src'    : path/URL to an image that REPLACES the built-in drawing.
@@ -460,7 +460,7 @@ OBSTACLE_TYPES.forEach(cfg => {
   if (cfg.src) { const img = new Image(); img.src = cfg.src; obstacleImages.set(cfg.src, img); }
 });
 
-// ── DEATH MESSAGES ────────────────────────────────────────
+// -- DEATH MESSAGES --
 //  One is picked at random each time the horse crashes.
 const DEATH_MESSAGES = [
   { emoji: '🐴😵', title: 'Whoops!',       msg: 'horse deded?'   },
@@ -472,7 +472,7 @@ const DEATH_MESSAGES = [
   
 ];
 
-// ── WIN MESSAGES ──────────────────────────────────────────
+// -- WIN MESSAGES --
 //  Shown instead of a death message when score >= WIN_SCORE.
 const WIN_MESSAGES = [
   { emoji: '🏆🐴', title: 'YOU WIN!!',       msg: 'You reached the super secret Score Threshhold.'            },
@@ -480,11 +480,11 @@ const WIN_MESSAGES = [
   { emoji: '👑',   title: 'QUEEN OF HORSES',  msg: 'No notes. Perfect run. Flawless.'             },
 ];
 
-// ── WIN SCORE ─────────────────────────────────────────────
+// -- WIN SCORE --
 //  Reach this score to trigger the special win message.
 const WIN_SCORE = 300;
 
-// ── LEADERBOARD (JSONBin.io) ───────────────────────────────
+// -- LEADERBOARD (JSONBin.io) --
 
 //  To RESET the leaderboard: go to jsonbin.io, open bin, and
 //  replace the content with {"scores":[]} and hit Save.
@@ -492,7 +492,7 @@ const JSONBIN_BIN_ID     = '69bf7da7c3097a1dd5499bea';   // e.g. '6630f1e0e41b4d
 const JSONBIN_MASTER_KEY = '$2a$10$CTgAKpefzv9SXRF3gQIOHeIyzOjve1ZMcQiTz1YXnU0ACtv8ta2yG';   // e.g. '$2a$10$...'
 const LEADERBOARD_MAX    = 10;     // max entries shown
 
-// ── PALETTE ──
+// -- PALETTE --
 const C = {
   sky1:'#fde8d0', sky2:'#f5c89a', horizon:'#f5c89a',
   sun:'#f5e080', sunGlow:'#fde8a040',
@@ -506,13 +506,13 @@ const C = {
   confetti:['#f07070','#f5c518','#7ec850','#5ba4cf','#c47ed4','#f0a070'],
 };
 
-// ── STATE ──
+// -- STATE --
 let W, H, groundY, score, speed, frameCount;
 let horse, obstacles, clouds, particles, candies;
 let nextObstacleIn = 0; // frames until next obstacle spawns
 let gameRunning = false;
 
-// ── RESIZE ──
+// -- RESIZE --
 function resize() {
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
@@ -526,7 +526,7 @@ function resize() {
   groundY = H * 0.72;
 }
 
-// ── HORSE ──
+// -- HORSE --
 function makeHorse() {
   return {
     x: W * 0.18,
@@ -564,7 +564,7 @@ function spawnJumpPoof() {
   }
 }
 
-// ── OBSTACLES ──
+// -- OBSTACLES --
 function pickObstacleType() {
   // Weighted random pick from OBSTACLE_TYPES
   const total = OBSTACLE_TYPES.reduce((s, t) => s + t.weight, 0);
@@ -592,7 +592,7 @@ function makeCloud() {
   };
 }
 
-// ── DRAW HELPERS ──
+// -- DRAW HELPERS --
 function drawSky() {
   const grad = ctx.createLinearGradient(0,0,0,groundY);
   grad.addColorStop(0, C.sky1);
@@ -770,7 +770,7 @@ function drawHorse(h) {
   ctx.restore();
 }
 
-// ── BACKGROUND ──
+// -- BACKGROUND --
 function drawBackground() {
   if (bgImage && bgImage.complete && bgImage.naturalWidth > 0) {
     // Scale-to-fill: cover the canvas, centered
@@ -783,7 +783,7 @@ function drawBackground() {
   }
 }
 
-// ── CANDY ──
+// -- CANDY --
 function makeCandy() {
   // Float candies at different heights so the player has to jump for some
   const heightTier = Math.random();
@@ -838,10 +838,10 @@ function drawCandies() {
     ctx.translate(c.x, drawY);
 
     if (candyImage && candyImage.complete && candyImage.naturalWidth > 0) {
-      // ── Custom candy image ──
+      // -- Custom candy image --
       ctx.drawImage(candyImage, -c.r, -c.r, c.r * 2, c.r * 2);
     } else {
-      // ── Built-in 5-pointed candy star ──
+      // -- Built-in 5-pointed candy star --
       const outer = c.r, inner = c.r * 0.45;
       ctx.beginPath();
       for (let i = 0; i < 10; i++) {
@@ -867,7 +867,7 @@ function drawCandies() {
   });
 }
 
-// ── DRAW OBSTACLE (checks custom image → falls back to built-in) ──
+// -- DRAW OBSTACLE -- Checks custom image, falls back to built-in.
 function drawObstacle(o) {
   if (o.cfg && o.cfg.src) {
     const img = obstacleImages.get(o.cfg.src);
@@ -964,7 +964,7 @@ function drawScore() {
   ctx.restore();
 }
 
-// ── COLLISION ──
+// -- COLLISION --
 function collides(h, o) {
   const margin = 10;
   return (
@@ -975,7 +975,7 @@ function collides(h, o) {
   );
 }
 
-// ── GAME LOOP ──
+// -- GAME LOOP -- This is where magic happens.
 let raf;
 function gameLoop() {
   if (!gameRunning) return;
@@ -1056,6 +1056,7 @@ function gameLoop() {
   raf = requestAnimationFrame(gameLoop);
 }
 
+// Function called when someone hits the play button, starts the game, shows the correct screen.
 function startGame() {
   resize();
   score = 0; speed = 4.5; frameCount = 0;
@@ -1074,8 +1075,9 @@ function startGame() {
   gameLoop();
 }
 
-// ── LEADERBOARD ──────────────────────────────────────────
+// -- LEADERBOARD --
 
+// Get the leaderboard.
 async function fetchLeaderboard() {
   if (!JSONBIN_BIN_ID) return [];
   try {
@@ -1091,6 +1093,7 @@ async function fetchLeaderboard() {
   }
 }
 
+// Post to the leaderboard. This is exploitable but I do not actually care this is for fun.
 async function submitScore(name, scoreVal) {
   if (!JSONBIN_BIN_ID || !JSONBIN_MASTER_KEY) {
     submitFeedback.textContent = '⚠️ Leaderboard not configured yet.';
@@ -1152,12 +1155,13 @@ async function showLeaderboard() {
   }).join('');
 }
 
+// Called when the horse collides with something.
 function endGame() {
   gameRunning = false;
   cancelAnimationFrame(raf);
   finalScore.textContent = score;
 
-  // Pick message pool — win messages if score is high enough, death messages otherwise
+  // Pick message pool — win messages if score is high enough, death messages otherwise. Random picks from the pool.
   const isWin = score >= WIN_SCORE;
   const pool  = isWin ? WIN_MESSAGES : DEATH_MESSAGES;
   const m     = pool[Math.floor(Math.random() * pool.length)];
@@ -1191,7 +1195,7 @@ function show(el) {
   el.classList.remove('hidden');
 }
 
-// ── CONFETTI ──
+// -- CONFETTI -- This is very extra.
 function launchConfetti() {
   for (let i = 0; i < 38; i++) {
     setTimeout(() => {
@@ -1209,7 +1213,7 @@ function launchConfetti() {
   }
 }
 
-// ── EVENTS ──
+// -- EVENTS --
 document.getElementById('start-btn').addEventListener('click', startGame);
 document.getElementById('retry-btn').addEventListener('click', startGame);
 document.getElementById('home-btn').addEventListener('click', () => { show(startScreen); launchConfetti(); });
@@ -1224,7 +1228,7 @@ nameInput.addEventListener('input', () => {
   nameInput.value = nameInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
 });
 
-// Submit score to Gist
+// Submit score to JSONBin.io
 submitBtn.addEventListener('click', async () => {
   const name = nameInput.value.trim();
   if (!name) { submitFeedback.textContent = 'Enter at least 1 character!'; return; }
