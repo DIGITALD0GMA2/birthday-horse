@@ -396,6 +396,7 @@
 </div>
 
 <script>
+(function() {
 // ===============================================
 //  BIRTHDAY HORSE GAME                          =
 // ===============================================
@@ -1034,8 +1035,8 @@ function gameLoop() {
   if (frameCount % 6 === 0) {
     _g++;
     _ev.t++;
-    // mix this tick into the checksum - depends on both current score and frame
     _k = (Math.imul(_k, 1540483477) ^ (_g + frameCount)) | 0;
+    _k = (Math.imul(_k, 1540483477) ^ (Math.round(speed * 1000))) | 0;
     scoreText.textContent = _g;
   }
   speed = 4.5 + _g * 0.012;
@@ -1096,6 +1097,7 @@ async function requestSession() {
     sessionToken = null;
   }
 }
+
 async function fetchLeaderboard() {
   if (!WORKER_URL) return [];
   try {
@@ -1272,6 +1274,7 @@ window.addEventListener('resize', () => { if (gameRunning) { resize(); } });
 
 // initial confetti on load
 window.addEventListener('load', () => { setTimeout(launchConfetti, 300); });
+})(); 
 </script>
 </body>
 </html>
