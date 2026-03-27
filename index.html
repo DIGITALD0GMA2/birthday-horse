@@ -505,10 +505,10 @@ const C = {
 
 // -- STATE --
 let W, H, groundY, _g, speed, frameCount;
-let _k  = 0;          // rolling checksum - updated alongside _g
-let _ev = { t:0, c:0 }; // event counts: t = time ticks, c = candies collected
+let _k  = 0;         
+let _ev = { t:0, c:0 };
 let horse, obstacles, clouds, particles, candies;
-let nextObstacleIn = 0; // frames until next obstacle spawns
+let nextObstacleIn = 0; 
 let gameRunning = false;
 
 // -- RESIZE --
