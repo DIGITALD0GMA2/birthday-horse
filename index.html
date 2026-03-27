@@ -1109,7 +1109,7 @@ async function fetchLeaderboard() {
   }
 }
 
-
+// TODO: remove vulnerability of set window.__debug = true
 async function submitScore(name, scoreVal, chk, events) {
   if (!WORKER_URL) {
     submitFeedback.textContent = '⚠️ Leaderboard not configured yet.';
