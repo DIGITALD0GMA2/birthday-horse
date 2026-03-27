@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Happy Birthday! 🐴</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@400;700;900&display=swap');
+
+  :root {
+    --sky:    #fde8d0;
+    --horizon:#f5c89a;
+    --ground: #c8a86b;
+    --grass:  #7ec850;
+    --dark:   #3b2a1a;
+    --pink:   #f07070;
+    --gold:   #f5c518;
+    --cream:  #fff8ef;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; touch-action:manipulation; }
+
+  body {
+    background: var(--sky);
+    font-family: 'Nunito', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* -- SCREENS -- */
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+    transition: opacity .4s;
+  }
+  .screen.hidden { opacity:0; pointer-events:none; }
+
+  /* -- START SCREEN -- */
+  #start-screen {
+    background: linear-gradient(170deg, #fde8d0 0%, #fbc99e 55%, #f5a86e 100%);
+  }
+  .birthday-banner {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: clamp(2.4rem, 10vw, 4rem);
+    color: var(--pink);
+    text-shadow: 3px 3px 0 var(--dark), -1px -1px 0 #fff8;
+    line-height: 1.1;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .friend-name {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: clamp(3rem, 13vw, 5.5rem);
+    color: var(--gold);
+    text-shadow: 3px 3px 0 #c07010, -1px -1px 0 #fff6;
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+  .subtitle {
+    font-size: clamp(.95rem, 3.5vw, 1.2rem);
+    color: var(--dark);
+    opacity: .75;
+    margin-bottom: 36px;
+    max-width: 300px;
+    line-height: 1.5;
+  }
+  .horse-deco {
+    font-size: 5rem;
+    margin-bottom: 28px;
+    animation: horseWiggle 1.2s ease-in-out infinite alternate;
+  }
+  @keyframes horseWiggle {
+    from { transform: rotate(-4deg) scale(1); }
+    to   { transform: rotate(4deg) scale(1.05); }
+  }
+  .start-btn {
+    background: var(--pink);
+    color: #fff;
+    font-family: 'Luckiest Guy', cursive;
+    font-size: clamp(1.3rem, 5vw, 1.8rem);
+    letter-spacing: 2px;
+    border: none;
+    padding: 16px 44px;
+    border-radius: 60px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #b04040, 0 10px 24px #0002;
+    transition: transform .1s, box-shadow .1s;
+  }
+  .start-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #b04040;
+  }
+  .confetti-strip {
+    display: flex; gap: 6px; margin-bottom: 28px;
+    font-size: 1.5rem;
+    animation: confettiFly 3s linear infinite;
+  }
+  @keyframes confettiFly {
+    0%   { transform: translateX(-10px) rotate(0deg); }
+    50%  { transform: translateX(10px) rotate(8deg); }
+    100% { transform: translateX(-10px) rotate(0deg); }
+  }
+
+  /* -- GAME SCREEN -- */
+  #game-screen {
+    background: transparent;
+    padding: 0;
+  }
+  #game-canvas {
+    display: block;
+    width: 100%;
+    max-width: 540px;
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  /* -- SCORE HUD -- */
+  #hud {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 1.6rem;
+    color: var(--dark);
+    text-shadow: 1px 1px 0 #fff8;
+    pointer-events: none;
+    z-index: 10;
+    display: none;
+  }
+
+  /* -- DEATH SCREEN -- */
+  #dead-screen {
+    background: linear-gradient(160deg, #3b2a1a 0%, #5c3d22 100%);
+  }
+  .dead-emoji { font-size: 4rem; margin-bottom: 16px; }
+  .dead-title {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: clamp(1.8rem, 8vw, 3rem);
+    color: var(--gold);
+    text-shadow: 2px 2px 0 #000;
+    margin-bottom: 8px;
+  }
+  .dead-msg {
+    color: #f5c89a;
+    font-size: clamp(.9rem, 3vw, 1.1rem);
+    margin-bottom: 6px;
+    opacity: .85;
+  }
+  #final-score {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: clamp(2rem, 9vw, 3.5rem);
+    color: var(--pink);
+    text-shadow: 2px 2px 0 #000;
+    margin-bottom: 28px;
+  }
+  .retry-btn {
+    background: var(--gold);
+    color: var(--dark);
+    font-family: 'Luckiest Guy', cursive;
+    font-size: clamp(1.2rem, 4.5vw, 1.6rem);
+    letter-spacing: 2px;
+    border: none;
+    padding: 14px 36px;
+    border-radius: 60px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #9a7a00;
+    transition: transform .1s, box-shadow .1s;
+    margin-right: 12px;
+  }
+  .retry-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #9a7a00; }
+  .home-btn {
+    background: transparent;
+    color: #f5c89a;
+    font-family: 'Luckiest Guy', cursive;
+    font-size: clamp(.9rem, 3.5vw, 1.2rem);
+    border: 2px solid #f5c89a66;
+    padding: 10px 24px;
+    border-radius: 60px;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: background .2s;
+  }
+  .home-btn:hover { background: #ffffff18; }
+
+  /* floating confetti pieces */
+  .conf {
+    position:fixed;
+    top:-30px;
+    width:10px; height:10px;
+    border-radius:2px;
+    animation: fall linear forwards;
+    pointer-events:none;
+    z-index:100;
+  }
+  @keyframes fall {
+    0%   { transform: translateY(0) rotate(0deg); opacity:1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity:0; }
+  }
+  
+  /* -- WIN NAME INPUT -- */
+  #win-entry { display:none; margin-bottom: 18px; }
+  #win-entry.visible { display:block; }
+  .win-entry-label {
+    color: #b8f5c0;
+    font-size: clamp(.85rem, 3vw, 1rem);
+    margin-bottom: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .name-row { display:flex; gap:10px; justify-content:center; align-items:center; }
+  #name-input {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: clamp(1.4rem, 6vw, 2rem);
+    letter-spacing: 6px;
+    text-align: center;
+    text-transform: uppercase;
+    width: 140px;
+    padding: 10px 12px;
+    border: 3px solid #b8f5c0;
+    border-radius: 12px;
+    background: #ffffff18;
+    color: #fff;
+    outline: none;
+  }
+  #name-input::placeholder { color: #ffffff44; letter-spacing:4px; }
+  #submit-score-btn {
+    background: #4caf70;
+    color: #fff;
+    font-family: 'Luckiest Guy', cursive;
+    font-size: clamp(1rem, 4vw, 1.3rem);
+    border: none;
+    padding: 12px 22px;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #2a7040;
+    transition: transform .1s, box-shadow .1s;
+  }
+  #submit-score-btn:active { transform:translateY(3px); box-shadow:0 1px 0 #2a7040; }
+  #submit-score-btn:disabled { opacity:.5; cursor:default; }
+  #submit-feedback {
+    font-size: .9rem; color: #b8f5c0; margin-top: 8px; min-height: 1.2em;
+  }
+
+  /* -- LEADERBOARD SCREEN -- */
+  #leaderboard-screen {
+    background: linear-gradient(160deg, #1a1a2e 0%, #2a2a4a 100%);
+    padding: 28px 20px;
+    overflow-y: auto;
+  }
+  .lb-title {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: clamp(1.8rem, 8vw, 3rem);
+    color: var(--gold);
+    text-shadow: 2px 2px 0 #000;
+    margin-bottom: 4px;
+  }
+  .lb-subtitle {
+    color: #aaa8d8;
+    font-size: clamp(.8rem, 2.8vw, 1rem);
+    margin-bottom: 22px;
+    opacity: .8;
+  }
+  #lb-table {
+    width: 100%;
+    max-width: 380px;
+    border-collapse: collapse;
+    margin: 0 auto 22px;
+  }
+  #lb-table th {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: .95rem;
+    letter-spacing: 1px;
+    color: var(--gold);
+    padding: 6px 10px;
+    border-bottom: 2px solid #ffffff22;
+    text-align: left;
+  }
+  #lb-table th:last-child { text-align:right; }
+  #lb-table td {
+    padding: 9px 10px;
+    font-size: clamp(.9rem, 3vw, 1.05rem);
+    color: #e8e8ff;
+    border-bottom: 1px solid #ffffff12;
+  }
+  #lb-table td:last-child { text-align:right; font-family:'Luckiest Guy',cursive; color:var(--pink); }
+  #lb-table tr:first-child td { color: var(--gold); font-weight:900; font-size:1.1rem; }
+  #lb-table tr:first-child td:last-child { color:var(--gold); }
+  .lb-rank { color: #aaa8d8; font-size:.85rem; }
+  .lb-empty { color: #aaa8d8; font-style:italic; padding: 20px; }
+  #lb-status { color: #aaa8d8; font-size:.9rem; margin-bottom:12px; min-height:1.2em; }
+  .lb-btn {
+    background: transparent;
+    color: #aaa8d8;
+    font-family: 'Luckiest Guy', cursive;
+    font-size: clamp(.85rem, 3.2vw, 1.1rem);
+    border: 2px solid #aaa8d844;
+    padding: 10px 24px;
+    border-radius: 50px;
+    cursor: pointer;
+    margin: 4px;
+    transition: background .2s, color .2s;
+  }
+  .lb-btn:hover { background:#ffffff14; color:#e8e8ff; }
+  .lb-btn.primary {
+    background: var(--gold); color: var(--dark);
+    border-color: var(--gold);
+    box-shadow: 0 4px 0 #9a7a00;
+  }
+  .lb-btn.primary:hover { background:#ffe040; }
+
+  /* leaderboard button on start screen */
+  .lb-start-btn {
+    background: transparent;
+    color: var(--dark);
+    font-family: 'Luckiest Guy', cursive;
+    font-size: clamp(.85rem, 3vw, 1.1rem);
+    border: 2px solid #3b2a1a44;
+    padding: 9px 22px;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: background .2s;
+  }
+  .lb-start-btn:hover { background: #0000080d; }
+</style>
+</head>
+<body>
+
+<!-- == START SCREEN == -->
+<div id="start-screen" class="screen">
+  <div class="confetti-strip">🎀🎂🎈🎁🎊🎉🐴</div>
+  <div class="birthday-banner">Happy Birthday</div>
+  <div class="friend-name">Lauryn!</div>
+  <div class="horse-deco">🐴</div>
+  <div class="subtitle">I made you a little horse game instead of a card.<br>Jump the fences. Make your ancestors proud.</div>
+  <button class="start-btn" id="start-btn">Let's Ride!</button>
+  <button class="lb-start-btn" id="lb-start-btn">🏆 Leaderboard</button>
+</div>
+
+<!-- == GAME SCREEN == -->
+<div id="game-screen" class="screen hidden">
+  <canvas id="game-canvas"></canvas>
+</div>
+<div id="hud">🏅 <span id="score-text">0</span></div>
+
+<!-- == DEATH SCREEN == -->
+<div id="dead-screen" class="screen hidden">
+  <div class="dead-emoji" id="dead-emoji">🐴💨</div>
+  <div class="dead-title" id="dead-title">Whoops!</div>
+  <div class="dead-msg" id="dead-msg-text">Your horse got a little too enthusiastic.</div>
+  <div class="dead-msg">Score:</div>
+  <div id="final-score">0</div>
+
+  <!-- shown only on a qualifying win -->
+  <div id="win-entry">
+    <div class="win-entry-label">🏆 You qualified! Enter your name:</div>
+    <div class="name-row">
+      <input id="name-input" type="text" maxlength="6" placeholder="XXXXXX" autocomplete="off" spellcheck="false">
+      <button id="submit-score-btn">Post!</button>
+    </div>
+    <div id="submit-feedback"></div>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+    <button class="retry-btn" id="retry-btn">Retry 🐎</button>
+  </div>
+  <button class="home-btn" id="home-btn">← Go back home</button>
+</div>
+
+<!-- == LEADERBOARD SCREEN == -->
+<div id="leaderboard-screen" class="screen hidden">
+  <div class="lb-title">🏆 Hall of Fame</div>
+  <div class="lb-subtitle">Scores that slap.</div>
+  <div id="lb-status">Loading…</div>
+  <table id="lb-table">
+    <thead>
+      <tr><th>#</th><th>Name</th><th>Score</th></tr>
+    </thead>
+    <tbody id="lb-body"></tbody>
+  </table>
+  <div>
+    <button class="lb-btn primary" id="lb-play-btn">Play 🐎</button>
+    <button class="lb-btn" id="lb-home-btn">← Home</button>
+  </div>
+</div>
+
+<script>
+// ===============================================
+//  BIRTHDAY HORSE GAME                          =
+// ===============================================
+
+const startScreen = document.getElementById('start-screen');
+const gameScreen  = document.getElementById('game-screen');
+const deadScreen  = document.getElementById('dead-screen');
+const lbScreen    = document.getElementById('leaderboard-screen');
+const hud         = document.getElementById('hud');
+const scoreText   = document.getElementById('score-text');
+const finalScore  = document.getElementById('final-score');
+const canvas      = document.getElementById('game-canvas');
+const ctx         = canvas.getContext('2d');
+const winEntry    = document.getElementById('win-entry');
+const nameInput   = document.getElementById('name-input');
+const submitBtn   = document.getElementById('submit-score-btn');
+const submitFeedback = document.getElementById('submit-feedback');
+const lbBody      = document.getElementById('lb-body');
+const lbStatus    = document.getElementById('lb-status');
+
+// ===========================================================
+//  CUSTOM ASSETS
+// ===========================================================
+
+// -- BACKGROUND IMAGE --
+//  Set to a URL or relative path (e.g. 'bg.jpg').
+//  Leave null to use the default painted sky.
+const BACKGROUND_SRC = 'assets/bg.png'; // e.g. 'background.jpg'
+let   bgImage = null;
+if (BACKGROUND_SRC) { bgImage = new Image(); bgImage.src = BACKGROUND_SRC; }
+
+// -- CANDY IMAGE --
+//  Set to a URL or relative path (e.g. 'candy.png').
+//  Leave null to use the built-in drawn star.
+//  Recommended: ~60×60 px transparent PNG.
+const CANDY_SRC = 'assets/pecup.png'; // e.g. 'candy.png'
+let   candyImage = null;
+if (CANDY_SRC) { candyImage = new Image(); candyImage.src = CANDY_SRC; }
+
+//  CANDY SPAWN RATE  (0 = never, 1 = every gap, 0.45 = 45% chance)
+const CANDY_SPAWN_RATE = 0.45;
+
+// -- OBSTACLE TYPES --
+//  'type'   : 'fence' or 'cake' — which built-in to use as fallback.
+//  'weight' : relative probability. 3 is 3× more likely than 1.
+//  'src'    : path/URL to an image that REPLACES the built-in drawing.
+//             Leave null to use the built-in. Recommend: transparent PNG.
+//  'w','h'  : display size in px when using a custom src image.
+//             Leave null to use auto-sized built-in dimensions.
+//  'label'  : just a comment, ignored by the game.
+const OBSTACLE_TYPES = [
+  { type: 'fence',  weight: 3,  src: null, w: null, h: null, label: 'Fence'      },
+  { type: 'shane',   weight: 1,  src: 'assets/shane-no.png', w: 60, h: 59, label: 'Shane'       },
+  { type: 'erik',   weight: 0.5,  src: 'assets/erik.png', w: 90, h: 90, label: 'Erik'       },
+  //{ type: 'adobe',   weight: 2,  src: 'assets/adobe-logo.png', w: null, h: null, label: 'adobe'       },
+  // { type: 'custom', weight: 1,  src: 'boss.png', w: 52, h: 64, label: 'The Boss' },
+];
+
+// Preload any custom obstacle images once at startup
+const obstacleImages = new Map();
+OBSTACLE_TYPES.forEach(cfg => {
+  if (cfg.src) { const img = new Image(); img.src = cfg.src; obstacleImages.set(cfg.src, img); }
+});
+
+// -- DEATH MESSAGES --
+//  One is picked at random each time the horse crashes.
+const DEATH_MESSAGES = [
+  { emoji: '🐴😵', title: 'Whoops!',       msg: 'horse ded?'   },
+  { emoji: '🤷‍♀️',   title: 'What do?',         msg: 'Walked right into that one.'                  },
+  { emoji: '😬',   title: 'So Close!',     msg: 'You were literally doing so well.'             },
+  { emoji: '🤦',   title: 'Really?',       msg: 'The horse has one job.'                        },
+  { emoji: '☕',   title: 'Take a Break',  msg: 'Maybe get a snack first and come back.'        },
+];
+
+// -- WIN MESSAGES --
+//  Shown instead of a death message when score >= WIN_SCORE.
+const WIN_MESSAGES = [
+  { emoji: '🎉🎊', title: 'LEGENDARY!!',      msg: 'Your horse deserves a carrot.'                },
+  { emoji: '👑',   title: 'QUEEN OF HORSES',  msg: 'No notes. Perfect run. Flawless.'             },
+   { emoji: '🐸',   title: 'GAMER GOD',  msg: 'Why the hell is the leaderboard score that high?!.'             },
+];
+
+// -- WIN SCORE --
+//  Reach this score to trigger the special win message.
+const WIN_SCORE = 300;
+
+// -- LEADERBOARD (clfw-jsonbin) --
+const WORKER_URL      = 'https://orange-shadow-0554.thespicedcaptain.workers.dev';
+const LEADERBOARD_MAX = 10;    // max entries shown
+
+
+// -- PALETTE --
+const C = {
+  sky1:'#fde8d0', sky2:'#f5c89a', horizon:'#f5c89a',
+  sun:'#f5e080', sunGlow:'#fde8a040',
+  ground:'#c8a86b', groundDark:'#a0803a', grass:'#7ec850', grassDark:'#5aaa30',
+  horse:'#8B4513', horseMane:'#3b1a06', horseLeg:'#6b2e0a', horseEye:'#fff',
+  obstacle:'#b05010', obstacleTop:'#d07030',
+  cake:'#f07070', cakeIcing:'#fff', cakeCandle:'#f5c518',
+  cloud:'#fff8ef',
+  dark:'#3b2a1a',
+  score:'#3b2a1a',
+  confetti:['#f07070','#f5c518','#7ec850','#5ba4cf','#c47ed4','#f0a070'],
+};
+
+// -- STATE --
+let W, H, groundY, score, speed, frameCount;
+let horse, obstacles, clouds, particles, candies;
+let nextObstacleIn = 0; // frames until next obstacle spawns
+let gameRunning = false;
+
+// -- RESIZE --
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  W = Math.min(540, window.innerWidth);
+  H = window.innerHeight;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+  groundY = H * 0.72;
+}
+
+// -- HORSE --
+function makeHorse() {
+  return {
+    x: W * 0.18,
+    y: groundY,
+    w: 68, h: 52,
+    vy: 0,
+    grounded: true,
+    legPhase: 0,
+    squish: 1,
+    jumpCount: 0,
+  };
+}
+
+function jump() {
+  if (!gameRunning) return;
+  if (horse.grounded || horse.jumpCount < 2) {
+    horse.vy = -16.5;
+    horse.grounded = false;
+    horse.jumpCount++;
+    horse.squish = 0.72;
+    spawnJumpPoof();
+  }
+}
+
+function spawnJumpPoof() {
+  for (let i = 0; i < 5; i++) {
+    particles.push({
+      x: horse.x + horse.w * 0.3,
+      y: groundY,
+      vx: (Math.random() - 0.7) * 3,
+      vy: -(Math.random() * 4 + 1),
+      life: 1, size: Math.random() * 8 + 4,
+      color: C.ground
+    });
+  }
+}
+
+// -- OBSTACLES --
+function pickObstacleType() {
+  // Weighted random pick from OBSTACLE_TYPES
+  const total = OBSTACLE_TYPES.reduce((s, t) => s + t.weight, 0);
+  let r = Math.random() * total;
+  for (const t of OBSTACLE_TYPES) { r -= t.weight; if (r <= 0) return t; }
+  return OBSTACLE_TYPES[0];
+}
+
+function makeObstacle() {
+  const cfg = pickObstacleType();
+  // Use explicit w/h from config if set, otherwise auto-size by built-in type
+  const h = cfg.h ?? (cfg.type === 'fence'
+    ? 28 + Math.random() * 24
+    : 34 + Math.random() * 18);
+  const w = cfg.w ?? (cfg.type === 'fence' ? 22 + Math.random() * 10 : 28);
+  return { x: W + 40, y: groundY - h, w, h, type: cfg.type, cfg };
+}
+
+function makeCloud() {
+  return {
+    x: W + 80,
+    y: H * 0.1 + Math.random() * H * 0.25,
+    r: 28 + Math.random() * 22,
+    speed: 0.4 + Math.random() * 0.5,
+  };
+}
+
+// -- DRAW HELPERS --
+function drawSky() {
+  const grad = ctx.createLinearGradient(0,0,0,groundY);
+  grad.addColorStop(0, C.sky1);
+  grad.addColorStop(1, C.sky2);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // sun
+  ctx.save();
+  ctx.globalAlpha = 0.7;
+  ctx.beginPath();
+  ctx.arc(W * 0.82, H * 0.12, 36, 0, Math.PI*2);
+  ctx.fillStyle = C.sunGlow;
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.beginPath();
+  ctx.arc(W * 0.82, H * 0.12, 22, 0, Math.PI*2);
+  ctx.fillStyle = C.sun;
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawGround() {
+  // dirt
+  const grad = ctx.createLinearGradient(0, groundY, 0, H);
+  grad.addColorStop(0, C.groundDark);
+  grad.addColorStop(1, C.ground);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, groundY, W, H - groundY);
+
+  // grass strip
+  ctx.fillStyle = C.grass;
+  ctx.fillRect(0, groundY - 7, W, 14);
+  ctx.fillStyle = C.grassDark;
+  ctx.fillRect(0, groundY - 7, W, 4);
+
+  // grass tufts
+  for (let i = 0; i < W; i += 22) {
+    const off = (i * 7) % 9;
+    ctx.fillStyle = C.grassDark;
+    ctx.beginPath();
+    ctx.moveTo(i + off, groundY - 7);
+    ctx.lineTo(i + off + 5, groundY - 14);
+    ctx.lineTo(i + off + 10, groundY - 7);
+    ctx.fill();
+  }
+}
+
+function drawCloud(c) {
+  ctx.save();
+  ctx.globalAlpha = 0.82;
+  ctx.fillStyle = C.cloud;
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.arc(c.x + i * c.r * 0.6, c.y + (i === 1 ? -c.r * 0.3 : 0), c.r * (i===1 ? 1.2 : 0.8), 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawHorse(h) {
+  ctx.save();
+  const cx = h.x + h.w / 2;
+  const cy = h.y;
+  ctx.translate(cx, cy);
+  ctx.scale(-1, h.squish); // negative x flips horse so head faces right
+
+  const bw = h.w, bh = h.h;
+  const lp = h.legPhase;
+
+  // shadow
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  ctx.ellipse(0, 4, bw * 0.45, 6, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+
+  // legs (4 legs animated)
+  const legPositions = [
+    {x: -bw*0.25, phase: 0},
+    {x: -bw*0.08, phase: Math.PI},
+    {x:  bw*0.08, phase: Math.PI*0.5},
+    {x:  bw*0.25, phase: Math.PI*1.5},
+  ];
+  legPositions.forEach(leg => {
+    const swing = Math.sin(lp + leg.phase) * (h.grounded ? 8 : 2);
+    ctx.strokeStyle = C.horseLeg;
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(leg.x, bh * 0.3);
+    ctx.quadraticCurveTo(leg.x + swing * 0.5, bh * 0.6, leg.x + swing, bh * 0.5);
+    ctx.stroke();
+  });
+
+  // body
+  ctx.fillStyle = C.horse;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, bw * 0.42, bh * 0.28, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  // neck
+  ctx.fillStyle = C.horse;
+  ctx.beginPath();
+  ctx.moveTo(-bw*0.25, -bh*0.1);
+  ctx.quadraticCurveTo(-bw*0.38, -bh*0.45, -bw*0.28, -bh*0.55);
+  ctx.quadraticCurveTo(-bw*0.14, -bh*0.5, -bw*0.1, -bh*0.1);
+  ctx.fill();
+
+  // head
+  ctx.fillStyle = C.horse;
+  ctx.beginPath();
+  ctx.ellipse(-bw*0.31, -bh*0.62, bw*0.14, bh*0.13, -0.4, 0, Math.PI*2);
+  ctx.fill();
+
+  // snout
+  ctx.fillStyle = '#a0622a';
+  ctx.beginPath();
+  ctx.ellipse(-bw*0.4, -bh*0.58, bw*0.07, bh*0.08, 0.3, 0, Math.PI*2);
+  ctx.fill();
+
+  // nostril
+  ctx.fillStyle = '#7a3810';
+  ctx.beginPath();
+  ctx.ellipse(-bw*0.43, -bh*0.57, 2.5, 2, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  // eye
+  ctx.fillStyle = C.horseEye;
+  ctx.beginPath();
+  ctx.arc(-bw*0.27, -bh*0.65, 4.5, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle = '#222';
+  ctx.beginPath();
+  ctx.arc(-bw*0.27, -bh*0.65, 2.5, 0, Math.PI*2);
+  ctx.fill();
+  // eye shine
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(-bw*0.26, -bh*0.665, 1, 0, Math.PI*2);
+  ctx.fill();
+
+  // ear
+  ctx.fillStyle = C.horse;
+  ctx.beginPath();
+  ctx.moveTo(-bw*0.23, -bh*0.72);
+  ctx.lineTo(-bw*0.19, -bh*0.85);
+  ctx.lineTo(-bw*0.14, -bh*0.72);
+  ctx.fill();
+
+  // mane
+  ctx.strokeStyle = C.horseMane;
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 4; i++) {
+    const mx = -bw*0.33 + i * bw*0.06;
+    const sway = Math.sin(frameCount * 0.06 + i) * 3;
+    ctx.beginPath();
+    ctx.moveTo(mx, -bh*0.6 - i*2);
+    ctx.quadraticCurveTo(mx - 8 + sway, -bh*0.52, mx - 4 + sway, -bh*0.38);
+    ctx.stroke();
+  }
+
+  // tail
+  ctx.strokeStyle = C.horseMane;
+  ctx.lineWidth = 5;
+  const tailSway = Math.sin(frameCount * 0.07) * 10;
+  ctx.beginPath();
+  ctx.moveTo(bw*0.4, -bh*0.08);
+  ctx.quadraticCurveTo(bw*0.6 + tailSway, bh*0.05, bw*0.55 + tailSway, bh*0.25);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// -- BACKGROUND --
+function drawBackground() {
+  if (bgImage && bgImage.complete && bgImage.naturalWidth > 0) {
+    // Scale-to-fill: cover the canvas, centered
+    const scale = Math.max(W / bgImage.naturalWidth, H / bgImage.naturalHeight);
+    const bw = bgImage.naturalWidth  * scale;
+    const bh = bgImage.naturalHeight * scale;
+    ctx.drawImage(bgImage, (W - bw) / 2, (H - bh) / 2, bw, bh);
+  } else {
+    drawSky(); // fallback to painted sky
+  }
+}
+
+// -- CANDY --
+function makeCandy() {
+  // Float candies at different heights so the player has to jump for some
+  const heightTier = Math.random();
+  const floatY = heightTier < 0.4
+    ? groundY - 30          // low — walkable
+    : heightTier < 0.75
+      ? groundY - 80        // mid — requires a small jump
+      : groundY - 140;      // high — requires a full jump
+  return {
+    x: W + 30,
+    y: floatY,
+    r: 14,                  // collision radius
+    bob: Math.random() * Math.PI * 2, // phase offset for bobbing
+    collected: false,
+  };
+}
+
+function updateCandies() {
+  candies.forEach(c => {
+    c.x -= speed;
+    c.bob += 0.07;
+  });
+  candies = candies.filter(c => c.x + c.r > -20 && !c.collected);
+
+  // Collision: horse collects candy
+  candies.forEach(c => {
+    const dx = (horse.x + horse.w / 2) - c.x;
+    const dy = (horse.y - horse.h / 2) - c.y;
+    if (Math.sqrt(dx*dx + dy*dy) < c.r + 18) {
+      c.collected = true;
+      score += 5; // bonus points!
+      // burst of coloured sparks
+      for (let i = 0; i < 10; i++) {
+        const angle = (i / 10) * Math.PI * 2;
+        particles.push({
+          x: c.x, y: c.y,
+          vx: Math.cos(angle) * (2 + Math.random() * 3),
+          vy: Math.sin(angle) * (2 + Math.random() * 3),
+          life: 1,
+          size: 4 + Math.random() * 4,
+          color: C.confetti[Math.floor(Math.random() * C.confetti.length)],
+        });
+      }
+    }
+  });
+}
+
+function drawCandies() {
+  candies.forEach(c => {
+    const drawY = c.y + Math.sin(c.bob) * 4; // gentle bobbing
+    ctx.save();
+    ctx.translate(c.x, drawY);
+
+    if (candyImage && candyImage.complete && candyImage.naturalWidth > 0) {
+      // -- Custom candy image --
+      ctx.drawImage(candyImage, -c.r, -c.r, c.r * 2, c.r * 2);
+    } else {
+      // -- Built-in 5-pointed candy star --
+      const outer = c.r, inner = c.r * 0.45;
+      ctx.beginPath();
+      for (let i = 0; i < 10; i++) {
+        const angle = (i * Math.PI) / 5 - Math.PI / 2;
+        const radius = i % 2 === 0 ? outer : inner;
+        i === 0
+          ? ctx.moveTo(Math.cos(angle) * radius, Math.sin(angle) * radius)
+          : ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+      }
+      ctx.closePath();
+      ctx.fillStyle = C.gold;
+      ctx.fill();
+      ctx.strokeStyle = '#c07010';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      // shine dot
+      ctx.beginPath();
+      ctx.arc(-outer * 0.2, -outer * 0.3, outer * 0.18, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff8';
+      ctx.fill();
+    }
+    ctx.restore();
+  });
+}
+
+// -- DRAW OBSTACLE -- Checks custom image, falls back to built-in.
+function drawObstacle(o) {
+  if (o.cfg && o.cfg.src) {
+    const img = obstacleImages.get(o.cfg.src);
+    if (img && img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, o.x, o.y, o.w, o.h);
+      return;
+    }
+  }
+  if (o.type === 'fence') drawFence(o);
+  else drawCake(o);
+}
+
+function drawFence(o) {
+  ctx.save();
+  // posts
+  ctx.fillStyle = C.obstacle;
+  for (let i = 0; i <= 1; i++) {
+    ctx.fillRect(o.x + i * (o.w - 6), o.y, 6, o.h);
+  }
+  // rails
+  ctx.fillStyle = C.obstacleTop;
+  const railH = Math.max(4, o.h * 0.18);
+  ctx.fillRect(o.x, o.y + 4, o.w, railH);
+  ctx.fillRect(o.x, o.y + o.h * 0.5, o.w, railH);
+  // pointy tops
+  ctx.fillStyle = C.obstacle;
+  ctx.beginPath();
+  ctx.moveTo(o.x, o.y);
+  ctx.lineTo(o.x + 3, o.y - 8);
+  ctx.lineTo(o.x + 6, o.y);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(o.x + o.w - 6, o.y);
+  ctx.lineTo(o.x + o.w - 3, o.y - 8);
+  ctx.lineTo(o.x + o.w, o.y);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawCake(o) {
+  ctx.save();
+  // base tiers
+  const tier1h = o.h * 0.55, tier2h = o.h * 0.35;
+  const tier1w = o.w, tier2w = o.w * 0.72;
+  // tier 1
+  ctx.fillStyle = C.cake;
+  ctx.beginPath();
+  ctx.roundRect(o.x, o.y + tier2h, tier1w, tier1h, 4);
+  ctx.fill();
+  ctx.fillStyle = C.cakeIcing;
+  ctx.fillRect(o.x, o.y + tier2h, tier1w, 6);
+  // tier 2
+  ctx.fillStyle = C.cake;
+  ctx.beginPath();
+  ctx.roundRect(o.x + (tier1w - tier2w)/2, o.y, tier2w, tier2h + 2, 4);
+  ctx.fill();
+  ctx.fillStyle = C.cakeIcing;
+  ctx.fillRect(o.x + (tier1w - tier2w)/2, o.y, tier2w, 5);
+  // candle
+  const cx = o.x + o.w / 2;
+  ctx.fillStyle = C.cakeCandle;
+  ctx.fillRect(cx - 3, o.y - 12, 6, 14);
+  // flame
+  const flickerY = Math.sin(frameCount * 0.15) * 1.5;
+  ctx.fillStyle = '#ff8020';
+  ctx.beginPath();
+  ctx.arc(cx, o.y - 14 + flickerY, 4, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle = '#ffe060';
+  ctx.beginPath();
+  ctx.arc(cx, o.y - 15 + flickerY, 2, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawParticles() {
+  particles.forEach(p => {
+    ctx.save();
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+function drawScore() {
+  ctx.save();
+  ctx.font = 'bold 22px "Nunito", sans-serif';
+  ctx.fillStyle = C.dark;
+  ctx.globalAlpha = 0.7;
+  ctx.fillText('🏅 ' + score, 16, 38);
+  ctx.restore();
+}
+
+// -- COLLISION --
+function collides(h, o) {
+  const margin = 10;
+  return (
+    h.x + margin < o.x + o.w &&
+    h.x + h.w - margin > o.x &&
+    h.y - h.h + margin < o.y + o.h &&
+    h.y > o.y + margin
+  );
+}
+
+// -- GAME LOOP -- This is where magic happens.
+let raf;
+function gameLoop() {
+  if (!gameRunning) return;
+  frameCount++;
+
+  // physics
+  horse.vy += 0.72;
+  horse.y  += horse.vy;
+  horse.squish += (1 - horse.squish) * 0.18;
+
+  if (horse.y >= groundY) {
+    horse.y = groundY;
+    horse.vy = 0;
+    horse.grounded = true;
+    horse.jumpCount = 0;
+  }
+
+  if (horse.grounded) horse.legPhase += 0.22 + speed * 0.01;
+
+  // obstacles — timer-based spawning so gaps are truly random
+  // nextObstacleIn counts down in frames; set fresh each spawn with randomness
+  nextObstacleIn--;
+  if (nextObstacleIn <= 0) {
+    obstacles.push(makeObstacle());
+    // Base gap shrinks from ~150 frames (easy) down to ~48 frames (hard) as score rises.
+    // Variance of ±45% means you get long breathing gaps AND tight clusters.
+    const base    = Math.max(48, 150 - score * 0.35);
+    const jitter  = base * 0.45;
+    nextObstacleIn = Math.round(base + (Math.random() * 2 - 1) * jitter);
+    // Occasionally spawn a candy in the gap ahead of the obstacle
+    if (Math.random() < CANDY_SPAWN_RATE) {
+      const candy = makeCandy();
+      // offset candy to appear before the obstacle, in the breathing space
+      candy.x = W + 30 + Math.random() * (nextObstacleIn * speed * 0.4);
+      candies.push(candy);
+    }
+  }
+  obstacles.forEach(o => o.x -= speed);
+  obstacles = obstacles.filter(o => o.x + o.w > -20);
+
+  // candies
+  updateCandies();
+
+  // clouds
+  if (clouds.length < 3 && Math.random() < 0.005) clouds.push(makeCloud());
+  clouds.forEach(c => c.x -= c.speed);
+  clouds = clouds.filter(c => c.x + c.r * 3 > -20);
+
+  // particles
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life -= 0.04;
+  });
+  particles = particles.filter(p => p.life > 0);
+
+  // score & speed
+  if (frameCount % 6 === 0) {
+    score++;
+    scoreText.textContent = score;
+  }
+  speed = 4.5 + score * 0.012;
+
+  // collision
+  for (const o of obstacles) {
+    if (collides(horse, o)) { endGame(); return; }
+  }
+
+  // draw
+  ctx.clearRect(0, 0, W, H);
+  drawBackground();          // custom image or painted sky
+  clouds.forEach(drawCloud);
+  drawGround();
+  drawCandies();             // drawn under obstacles so horse overlaps
+  obstacles.forEach(o => drawObstacle(o));
+  drawHorse(horse);
+  drawParticles();
+  drawScore();
+
+  raf = requestAnimationFrame(gameLoop);
+}
+
+// Function called when someone hits the play button, starts the game, shows the correct screen.
+function startGame() {
+  resize();
+  score = 0; speed = 4.5; frameCount = 0;
+  horse = makeHorse();
+  obstacles = [];
+  candies = [];
+  clouds = [makeCloud(), makeCloud()];
+  particles = [];
+  nextObstacleIn = 90; // warm-up: first obstacle after ~1.5s
+  gameRunning = true;
+  scoreText.textContent = 0;
+  requestSession(); // get a fresh signed timestamp from the Worker
+
+  show(gameScreen);
+  hud.style.display = 'none'; // score drawn on canvas
+  cancelAnimationFrame(raf);
+  gameLoop();
+}
+
+// -- LEADERBOARD --
+
+let sessionToken = null;
+
+async function requestSession() {
+  if (!WORKER_URL) return;
+  try {
+    const res = await fetch(`${WORKER_URL}/session`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    sessionToken = data.token ?? null;
+  } catch (e) {
+    console.warn('Session request failed:', e);
+    sessionToken = null;
+  }
+}
+async function fetchLeaderboard() {
+  if (!WORKER_URL) return [];
+  try {
+    const res = await fetch(`${WORKER_URL}/leaderboard`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return data.scores ?? [];
+  } catch (e) {
+    console.warn('Leaderboard fetch failed:', e);
+    return [];
+  }
+}
+
+
+async function submitScore(name, scoreVal) {
+  if (!WORKER_URL) {
+    submitFeedback.textContent = '⚠️ Leaderboard not configured yet.';
+    return false;
+  }
+  try {
+    const res = await fetch(`${WORKER_URL}/submit`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ token: sessionToken, name, score: scoreVal }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      // Surface the Worker's specific rejection reason in the feedback line
+      submitFeedback.textContent = `❌ ${data.error ?? 'Something went wrong.'}`;
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.warn('Leaderboard submit failed:', e);
+    submitFeedback.textContent = '❌ Network error. Are you online?';
+    return false;
+  }
+}
+
+// Populates and shows the leaderboard screen.
+async function showLeaderboard() {
+  show(lbScreen);
+  lbStatus.textContent = 'Loading…';
+  lbBody.innerHTML = '';
+
+  if (!WORKER_URL) {
+    lbStatus.textContent = '⚠️ Leaderboard not set up yet.';
+    return;
+  }
+
+  const scores = await fetchLeaderboard();
+  lbStatus.textContent = '';
+
+  if (scores.length === 0) {
+    lbBody.innerHTML = `<tr><td colspan="3" class="lb-empty">No scores yet — be the first! 🐴</td></tr>`;
+    return;
+  }
+
+  lbBody.innerHTML = scores.map((entry, i) => {
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉'
+                                  : `<span class="lb-rank">${i + 1}</span>`;
+    return `<tr>
+      <td>${medal}</td>
+      <td>${entry.name}</td>
+      <td>${entry.score}</td>
+    </tr>`;
+  }).join('');
+}
+
+// Called when the horse collides with something.
+function endGame() {
+  gameRunning = false;
+  cancelAnimationFrame(raf);
+  finalScore.textContent = score;
+
+  // Pick message pool — win messages if score is high enough, death messages otherwise. Random picks from the pool.
+  const isWin = score >= WIN_SCORE;
+  const pool  = isWin ? WIN_MESSAGES : DEATH_MESSAGES;
+  const m     = pool[Math.floor(Math.random() * pool.length)];
+
+  document.getElementById('dead-emoji').textContent = m.emoji;
+  document.getElementById('dead-title').textContent = m.title;
+  document.getElementById('dead-msg-text').textContent = m.msg;
+
+  // Green victory tint on win, dark brown otherwise
+  deadScreen.style.background = isWin
+    ? 'linear-gradient(160deg, #1a3b20 0%, #2d7a38 100%)'
+    : 'linear-gradient(160deg, #3b2a1a 0%, #5c3d22 100%)';
+
+  // Show name-entry form only on a qualifying win
+  if (isWin) {
+    winEntry.classList.add('visible');
+    nameInput.value = '';
+    submitFeedback.textContent = '';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Post!';
+  } else {
+    winEntry.classList.remove('visible');
+  }
+
+  show(deadScreen);
+  launchConfetti();
+}
+
+function show(el) {
+  [startScreen, gameScreen, deadScreen, lbScreen].forEach(s => s.classList.add('hidden'));
+  el.classList.remove('hidden');
+}
+
+// -- CONFETTI -- This is very extra.
+function launchConfetti() {
+  for (let i = 0; i < 38; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'conf';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.background = C.confetti[Math.floor(Math.random()*C.confetti.length)];
+      el.style.width  = (8 + Math.random()*8) + 'px';
+      el.style.height = (8 + Math.random()*8) + 'px';
+      el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      el.style.animationDuration = (1.5 + Math.random()*2) + 's';
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }, i * 40);
+  }
+}
+
+// -- EVENTS --
+document.getElementById('start-btn').addEventListener('click', startGame);
+document.getElementById('retry-btn').addEventListener('click', startGame);
+document.getElementById('home-btn').addEventListener('click', () => { show(startScreen); launchConfetti(); });
+
+// Leaderboard navigation
+document.getElementById('lb-start-btn').addEventListener('click', showLeaderboard);
+document.getElementById('lb-play-btn').addEventListener('click', startGame);
+document.getElementById('lb-home-btn').addEventListener('click', () => show(startScreen));
+
+// Name input: uppercase-only enforcer
+nameInput.addEventListener('input', () => {
+  nameInput.value = nameInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+
+// Submit score to JSONBin.io
+submitBtn.addEventListener('click', async () => {
+  const name = nameInput.value.trim();
+  if (!name) { submitFeedback.textContent = 'Enter at least 1 character!'; return; }
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Posting…';
+  submitFeedback.textContent = '';
+  const ok = await submitScore(name, score);
+  if (ok) {
+    submitFeedback.textContent = '✅ Score posted!';
+    submitBtn.textContent = 'Posted ✓';
+    // Jump to the leaderboard after a brief pause
+    setTimeout(showLeaderboard, 900);
+  } else {
+    submitFeedback.textContent = '❌ Something went wrong. Try again?';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Post!';
+  }
+});
+
+// Jump: tap / click / space / up arrow
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); jump(); }
+});
+canvas.addEventListener('pointerdown', e => { e.preventDefault(); jump(); });
+
+window.addEventListener('resize', () => { if (gameRunning) { resize(); } });
+
+// initial confetti on load
+window.addEventListener('load', () => { setTimeout(launchConfetti, 300); });
+</script>
+</body>
+</html>
