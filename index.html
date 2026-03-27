@@ -502,7 +502,9 @@ const C = {
 };
 
 // -- STATE --
-let W, H, groundY, score, speed, frameCount;
+let W, H, groundY, _g, speed, frameCount;
+let _k  = 0;          // rolling checksum - updated alongside _g
+let _ev = { t:0, c:0 }; // event counts: t = time ticks, c = candies collected
 let horse, obstacles, clouds, particles, candies;
 let nextObstacleIn = 0; // frames until next obstacle spawns
 let gameRunning = false;
@@ -809,7 +811,9 @@ function updateCandies() {
     const dy = (horse.y - horse.h / 2) - c.y;
     if (Math.sqrt(dx*dx + dy*dy) < c.r + 18) {
       c.collected = true;
-      score += 5; // bonus points!
+      _g  += 5;
+      _ev.c++;
+      _k = (Math.imul(_k, 1540483477) ^ (_g ^ 0xC4D1)) | 0;
       // burst of coloured sparks
       for (let i = 0; i < 10; i++) {
         const angle = (i / 10) * Math.PI * 2;
@@ -955,7 +959,7 @@ function drawScore() {
   ctx.font = 'bold 22px "Nunito", sans-serif';
   ctx.fillStyle = C.dark;
   ctx.globalAlpha = 0.7;
-  ctx.fillText('🏅 ' + score, 16, 38);
+  ctx.fillText('🏅 ' + _g, 16, 38);
   ctx.restore();
 }
 
@@ -997,7 +1001,7 @@ function gameLoop() {
     obstacles.push(makeObstacle());
     // Base gap shrinks from ~150 frames (easy) down to ~48 frames (hard) as score rises.
     // Variance of ±45% means you get long breathing gaps AND tight clusters.
-    const base    = Math.max(48, 150 - score * 0.35);
+    const base    = Math.max(48, 150 - _g * 0.35);
     const jitter  = base * 0.45;
     nextObstacleIn = Math.round(base + (Math.random() * 2 - 1) * jitter);
     // Occasionally spawn a candy in the gap ahead of the obstacle
@@ -1027,10 +1031,13 @@ function gameLoop() {
 
   // score & speed
   if (frameCount % 6 === 0) {
-    score++;
-    scoreText.textContent = score;
+    _g++;
+    _ev.t++;
+    // mix this tick into the checksum - depends on both current score and frame
+    _k = (Math.imul(_k, 1540483477) ^ (_g + frameCount)) | 0;
+    scoreText.textContent = _g;
   }
-  speed = 4.5 + score * 0.012;
+  speed = 4.5 + _g * 0.012;
 
   // collision
   for (const o of obstacles) {
@@ -1054,7 +1061,8 @@ function gameLoop() {
 // Function called when someone hits the play button, starts the game, shows the correct screen.
 function startGame() {
   resize();
-  score = 0; speed = 4.5; frameCount = 0;
+  _g  = 0; _k = 0; _ev = { t: 0, c: 0 };
+  speed = 4.5; frameCount = 0;
   horse = makeHorse();
   obstacles = [];
   candies = [];
@@ -1062,7 +1070,7 @@ function startGame() {
   particles = [];
   nextObstacleIn = 90; // warm-up: first obstacle after ~1.5s
   gameRunning = true;
-  scoreText.textContent = 0;
+  scoreText.textContent = _g;
   requestSession(); // get a fresh signed timestamp from the Worker
 
   show(gameScreen);
@@ -1101,7 +1109,7 @@ async function fetchLeaderboard() {
 }
 
 
-async function submitScore(name, scoreVal) {
+async function submitScore(name, scoreVal, chk, events) {
   if (!WORKER_URL) {
     submitFeedback.textContent = '⚠️ Leaderboard not configured yet.';
     return false;
@@ -1110,7 +1118,7 @@ async function submitScore(name, scoreVal) {
     const res = await fetch(`${WORKER_URL}/submit`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ token: sessionToken, name, score: scoreVal }),
+      body:    JSON.stringify({ token: sessionToken, name, score: scoreVal, chk, events }),
     });
     const data = await res.json();
     if (!res.ok) {
@@ -1160,10 +1168,10 @@ async function showLeaderboard() {
 function endGame() {
   gameRunning = false;
   cancelAnimationFrame(raf);
-  finalScore.textContent = score;
+  finalScore.textContent = _g;
 
   // Pick message pool — win messages if score is high enough, death messages otherwise. Random picks from the pool.
-  const isWin = score >= WIN_SCORE;
+  const isWin = _g >= WIN_SCORE;
   const pool  = isWin ? WIN_MESSAGES : DEATH_MESSAGES;
   const m     = pool[Math.floor(Math.random() * pool.length)];
 
@@ -1229,14 +1237,14 @@ nameInput.addEventListener('input', () => {
   nameInput.value = nameInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
 });
 
-// Submit score to JSONBin.io
+// Submit score
 submitBtn.addEventListener('click', async () => {
   const name = nameInput.value.trim();
   if (!name) { submitFeedback.textContent = 'Enter at least 1 character!'; return; }
   submitBtn.disabled = true;
   submitBtn.textContent = 'Posting…';
   submitFeedback.textContent = '';
-  const ok = await submitScore(name, score);
+  const ok = await submitScore(name, _g, _k, _ev);
   if (ok) {
     submitFeedback.textContent = '✅ Score posted!';
     submitBtn.textContent = 'Posted ✓';
